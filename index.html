@@ -157,14 +157,14 @@
                 <a href="#" data-page="home"><i class="fas fa-home"></i><span class="menu-text">หน้าหลัก</span></a>
             </li>
             <li class="menu-item">
-                <a href="#" data-page="program"><i class="fas fa-laptop"></i><span class="menu-text">โปรแกรม</span></a>
+                <a href="#"><i class="fas fa-laptop"></i><span class="menu-text">โปรแกรม</span></a>
                 <ul class="submenu">
                     <li><a href="#" data-page="attendance"><i class="fas fa-user-check"></i><span class="menu-text">บันทึกการเข้างาน</span></a></li>
                     <li><a href="#" data-page="camera"><i class="fas fa-camera"></i><span class="menu-text">บันทึกกล้อง</span></a></li>
                     <li><a href="#" data-page="shift"><i class="far fa-calendar"></i><span class="menu-text">จัดกะรถ</span></a></li>
                     <li><a href="#" data-page="maintenance"><i class="fas fa-wrench"></i><span class="menu-text">บันทึกการซ่อมบำรุง</span></a></li>
                     <li class="menu-item">
-                        <a href="#" data-page="expire"><i class="fas fa-exclamation-circle"></i><span class="menu-text">เอกสารหมดอายุ</span></a>
+                        <a href="#"><i class="fas fa-exclamation-circle"></i><span class="menu-text">เอกสารหมดอายุ</span></a>
                         <ul class="submenu">
                             <li><a href="#" data-page="license-expire"><i class="far fa-id-card"></i><span class="menu-text">ใบขับขี่หมดอายุ</span></a></li>
                             <li><a href="#" data-page="bus-expire"><i class="fas fa-clipboard-list"></i><span class="menu-text">เอกสารรถหมดอายุ</span></a></li>
@@ -256,7 +256,7 @@
                 
                 if (pageExists) {
                     try {
-                        const response = await fetch(`pages/${page}.html`);
+                        const response = await fetch(`${page}.html`);
                         if (response.ok) {
                             const html = await response.text();
                             mainContent.innerHTML = html;
