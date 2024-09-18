@@ -323,7 +323,7 @@
         <p>This is the homepage of your dashboard.</p>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
@@ -356,6 +356,7 @@
         item.addEventListener('click', function(event) {
             const submenu = this.nextElementSibling;
 
+            // Check if the clicked item has a submenu
             if (submenu && submenu.classList.contains('submenu')) {
                 event.preventDefault();
                 const parent = this.parentElement;
@@ -367,9 +368,26 @@
                 } else {
                     submenu.style.maxHeight = null;
                 }
+
+                // Close other open submenus on the same level
+                closeOtherSubmenus(parent);
             }
         });
     });
+
+    // Function to close other open submenus on the same level
+    function closeOtherSubmenus(currentItem) {
+        const siblings = currentItem.parentElement.children;
+        for (let i = 0; i < siblings.length; i++) {
+            if (siblings[i] !== currentItem && siblings[i].classList.contains('open')) {
+                siblings[i].classList.remove('open');
+                const siblingSubmenu = siblings[i].querySelector('.submenu');
+                if (siblingSubmenu) {
+                    siblingSubmenu.style.maxHeight = null;
+                }
+            }
+        }
+    }
 });
 
     </script>
