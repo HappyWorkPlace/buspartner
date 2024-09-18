@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bus Partner Dashboard - SPA</title>
+    <title>Bus Partner 19</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -218,12 +218,12 @@
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const mainContent = document.getElementById('main-content');
             const menuItems = document.querySelectorAll('.sidebar-menu a');
-
+        
             sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('sidebar-collapsed');
                 mainContent.classList.toggle('main-content-expanded');
             });
-
+        
             menuItems.forEach(item => {
                 item.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -238,41 +238,22 @@
                     }
                 });
             });
-
-            // เพิ่มฟังก์ชันสำหรับตรวจสอบการมีอยู่ของหน้า
-            async function checkPageExists(page) {
-                try {
-                    const response = await fetch(`${page}`, { method: 'HEAD' });
-                    return response.ok;
-                } catch (error) {
-                    console.error('Error checking page existence:', error);
-                    return false;
-                }
-            }
-
-            // ปรับปรุงฟังก์ชัน loadContent
+        
             async function loadContent(page) {
-                const pageExists = await checkPageExists(page);
-                
-                if (pageExists) {
-                    try {
-                        const response = await fetch(`${page}`);
-                        if (response.ok) {
-                            const html = await response.text();
-                            mainContent.innerHTML = html;
-                        } else {
-                            throw new Error('Failed to load page');
-                        }
-                    } catch (error) {
-                        console.error('Error loading page:', error);
-                        mainContent.innerHTML = '<h1>Error Loading Page</h1><p>The requested page could not be loaded.</p>';
+                try {
+                    const response = await fetch(`${page}.html`);
+                    if (response.ok) {
+                        const html = await response.text();
+                        mainContent.innerHTML = html;
+                    } else {
+                        throw new Error('Failed to load page');
                     }
-                } else {
-                    console.error('Page does not exist:', page);
-                    mainContent.innerHTML = '<h1>Page Not Found</h1><p>The requested page does not exist.</p>';
+                } catch (error) {
+                    console.error('Error loading page:', error);
+                    mainContent.innerHTML = `<h1>Error Loading Page</h1><p>The requested page (${page}) could not be loaded.</p>`;
                 }
             }
-
+        
             // โหลดหน้าเริ่มต้น
             loadContent('home');
         });
