@@ -242,7 +242,7 @@
             // เพิ่มฟังก์ชันสำหรับตรวจสอบการมีอยู่ของหน้า
             async function checkPageExists(page) {
                 try {
-                    const response = await fetch(`pages/${page}.html`, { method: 'HEAD' });
+                    const response = await fetch(`${page}.html`, { method: 'HEAD' });
                     return response.ok;
                 } catch (error) {
                     console.error('Error checking page existence:', error);
