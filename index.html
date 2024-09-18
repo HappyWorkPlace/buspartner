@@ -177,14 +177,14 @@
                 <ul class="submenu">
                     <li><a href="#" data-page="accountmanagement"><i class="fas fa-user-cog"></i><span class="menu-text">จัดการบัญชี</span></a></li>
                     <li class="menu-item">
-                        <a href="#" data-page="driver-register"<i class="fas fa-bus"></i><span class="menu-text">ฐานข้อมูลคนขับ</span></a>
+                        <a href="#"><i class="fas fa-bus"></i><span class="menu-text">ฐานข้อมูลคนขับ</span></a>
                         <ul class="submenu">
                             <li><a href="#" data-page="driver-register"><i class="fas fa-user-plus"></i><span class="menu-text">ลงทะเบียนคนขับ</span></a></li>
                             <li><a href="#" data-page="driver-data"><i class="fas fa-id-card"></i><span class="menu-text">ข้อมูลคนขับ</span></a></li>
                         </ul>
                     </li>
                     <li class="menu-item">
-                        <a href="#" data-page="bus-db"><i class="fas fa-database"></i><span class="menu-text">ฐานข้อมูลรถ</span></a>
+                        <a href="#"><i class="fas fa-database"></i><span class="menu-text">ฐานข้อมูลรถ</span></a>
                         <ul class="submenu">
                             <li><a href="#" data-page="bus-register"><i class="fas fa-bus-alt"></i><span class="menu-text">ลงทะเบียนรถ</span></a></li>
                             <li><a href="#" data-page="bus-data"><i class="fas fa-clipboard-list"></i><span class="menu-text">ข้อมูลรถ</span></a></li>
@@ -212,7 +212,7 @@
         <!-- Content will be loaded here dynamically -->
     </div>
 
-    <script>
+     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebar-toggle');
@@ -232,24 +232,49 @@
                     if (submenu) {
                         submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
                     }
-                    loadContent(this.getAttribute('data-page'));
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        loadContent(page);
+                    }
                 });
             });
 
-            function loadContent(page) {
-                fetch(`${page}.html`)
-                    .then(response => response.text())
-                    .then(html => {
-                        mainContent.innerHTML = html;
-                    })
-                    .catch(error => {
-                        console.error('Error loading page:', error);
-                        mainContent.innerHTML = '<h1>Error Loading Page</h1><p>The requested page could not be loaded.</p>';
-                    });
+            // เพิ่มฟังก์ชันสำหรับตรวจสอบการมีอยู่ของหน้า
+            async function checkPageExists(page) {
+                try {
+                    const response = await fetch(`pages/${page}.html`, { method: 'HEAD' });
+                    return response.ok;
+                } catch (error) {
+                    console.error('Error checking page existence:', error);
+                    return false;
+                }
             }
 
-            // Load default page
-            loadContent('login');
+            // ปรับปรุงฟังก์ชัน loadContent
+            async function loadContent(page) {
+                const pageExists = await checkPageExists(page);
+                
+                if (pageExists) {
+                    try {
+                        const response = await fetch(`pages/${page}.html`);
+                        if (response.ok) {
+                            const html = await response.text();
+                            mainContent.innerHTML = html;
+                        } else {
+                            throw new Error('Failed to load page');
+                        }
+                    } catch (error) {
+                        console.error('Error loading page:', error);
+                        mainContent.innerHTML = '<h1>Error Loading Page</h1><p>The requested page could not be loaded.</p>';
+                    }
+                } else {
+                    console.error('Page does not exist:', page);
+                    mainContent.innerHTML = '<h1>Page Not Found</h1><p>The requested page does not exist.</p>';
+                }
+            }
+
+            // โหลดหน้าเริ่มต้น
+            loadContent('home');
         });
     </script>
 </body>
