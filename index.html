@@ -83,7 +83,10 @@
             text-decoration: none;
             transition: background-color 0.2s;
         }
-
+        .menu-item > a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
         .menu-item > a:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -213,50 +216,65 @@
     </div>
 
      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const mainContent = document.getElementById('main-content');
-            const menuItems = document.querySelectorAll('.sidebar-menu a');
-        
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('sidebar-collapsed');
-                mainContent.classList.toggle('main-content-expanded');
-            });
-        
-            menuItems.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const parent = this.parentElement;
-                    const submenu = parent.querySelector('.submenu');
-                    if (submenu) {
-                        submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
-                    }
-                    const page = this.getAttribute('data-page');
-                    if (page) {
-                        loadContent(page);
-                    }
-                });
-            });
-        
-            async function loadContent(page) {
-                try {
-                    const response = await fetch(`${page}.html`);
-                    if (response.ok) {
-                        const html = await response.text();
-                        mainContent.innerHTML = html;
-                    } else {
-                        throw new Error('Failed to load page');
-                    }
-                } catch (error) {
-                    console.error('Error loading page:', error);
-                    mainContent.innerHTML = `<h1>Error Loading Page</h1><p>The requested page (${page}) could not be loaded.</p>`;
-                }
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const mainContent = document.getElementById('main-content');
+    const menuItems = document.querySelectorAll('.sidebar-menu a');
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('main-content-expanded');
+    });
+
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const parent = this.parentElement;
+            const submenu = parent.querySelector('.submenu');
+            if (submenu) {
+                submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
             }
-        
-            // โหลดหน้าเริ่มต้น
-            loadContent('login');
+            const page = this.getAttribute('data-page');
+            if (page) {
+                loadContent(page);
+                updateActiveMenuItem(this);
+            }
         });
+    });
+
+    async function loadContent(page) {
+        try {
+            const response = await fetch(`${page}.html`);
+            if (response.ok) {
+                const html = await response.text();
+                mainContent.innerHTML = html;
+                history.pushState({ page: page }, '', `#${page}`);
+            } else {
+                throw new Error('Failed to load page');
+            }
+        } catch (error) {
+            console.error('Error loading page:', error);
+            mainContent.innerHTML = `<h1>Error Loading Page</h1><p>The requested page (${page}) could not be loaded.</p>`;
+        }
+    }
+
+    function updateActiveMenuItem(clickedItem) {
+        menuItems.forEach(item => item.classList.remove('active'));
+        clickedItem.classList.add('active');
+    }
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function(event) {
+        if (event.state && event.state.page) {
+            loadContent(event.state.page);
+        }
+    });
+
+    // Load initial page based on URL hash or default to 'home'
+    const initialPage = window.location.hash.substr(1) || 'login';
+    loadContent(initialPage);
+});
     </script>
 </body>
 </html>
