@@ -309,5 +309,56 @@
         <h1>Welcome to Projeck</h1>
         <p>This is the homepage of your dashboard.</p>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
+
+        // Toggle tooltips for collapsed sidebar
+        document.querySelectorAll('.menu-item > a').forEach(item => {
+            if (sidebar.classList.contains('collapsed')) {
+                item.setAttribute('title', item.querySelector('.menu-text').textContent);
+            } else {
+                item.removeAttribute('title');
+            }
+        });
+
+        // Close all submenus when collapsing the sidebar
+        if (sidebar.classList.contains('collapsed')) {
+            document.querySelectorAll('.submenu').forEach(submenu => {
+                submenu.style.maxHeight = null;
+                submenu.parentElement.classList.remove('open');
+            });
+        }
+    });
+
+    // Toggle submenus
+    const menuItems = document.querySelectorAll('.menu-item > a');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(event) {
+            const submenu = this.nextElementSibling;
+
+            if (submenu && submenu.classList.contains('submenu')) {
+                event.preventDefault();
+                const parent = this.parentElement;
+                parent.classList.toggle('open');
+
+                // Toggle max-height for smooth animation
+                if (parent.classList.contains('open')) {
+                    submenu.style.maxHeight = submenu.scrollHeight + "px";
+                } else {
+                    submenu.style.maxHeight = null;
+                }
+            }
+        });
+    });
+});
+
+    </script>
 </body>
 </html>
