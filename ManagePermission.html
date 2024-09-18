@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Access</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Include Firebase Authentication and Firestore Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="checkAccess.js"></script>
+    <script>
+        // Your Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyC0sUp9IJILTAV4Qx7AHK6dugESDF5NWHA",
+    authDomain: "buspartner-3aa7f.firebaseapp.com",
+    databaseURL: "https://buspartner-3aa7f-default-rtdb.firebaseio.com",
+    projectId: "buspartner-3aa7f",
+    storageBucket: "buspartner-3aa7f.appspot.com",
+    messagingSenderId: "482507801367",
+    appId: "1:482507801367:web:fd3329c1cc6bac15bbed52",
+    measurementId: "G-5J3H0PFV2Y"
+};
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentCompanyNo = '';
+
+    // ฟังก์ชันที่จะถูกเรียกเมื่อหน้าถูกโหลด
+window.onload = function() {
+    let permission = 'ManagePermission'; // ตั้งค่า permission ที่ต้องการตรวจสอบ
+    checkAccess(permission).then(result => {
+        if (result.accessGranted) {
+            // ถ้าได้รับสิทธิ์เข้าถึงให้เรียกฟังก์ชัน displayAllowedMenus() พร้อมกับ allowedMenus
+            displayAllowedMenus(result.allowedMenus);
+        } else {
+            // ถ้าไม่ได้รับสิทธิ์เข้าถึง ให้ redirect ไปยังหน้าอื่น
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+    }).catch(error => {
+        console.error("Error in checkAccess:", error);
+        alert('An error occurred while checking access. Please try again.');
+        window.location.href = 'login.html'; // Redirect to login page
+    });
+};
+
+// Function to load permissions for the selected role
+function loadPermissions(role) {
+    if (!currentCompanyNo) return;
+
+    // Load permissions for the selected role from Firestore
+    db.collection('companies').doc(currentCompanyNo).get().then(doc => {
+        if (doc.exists) {
+            const companyData = doc.data();
+            const permissions = companyData.permissions || {};
+            const rolePermissions = permissions[role] || [];
+
+            // Set checkboxes based on current permissions for the selected role
+            document.querySelectorAll('input.permission-checkbox').forEach(checkbox => {
+                checkbox.checked = rolePermissions.includes(checkbox.value);
+            });
+        } else {
+            console.log('No such document!');
+        }
+    }).catch(error => {
+        console.error('Error getting company document:', error);
+    });
+}
+
+function displayAllowedMenus(allowedMenus) {
+    // ล้าง checkbox เดิมออก
+    const permissionsContainer = document.querySelector('.permissions-container');
+    if (!permissionsContainer) {
+        console.error('Permissions container not found.');
+        return;
+    }
+    
+    permissionsContainer.innerHTML = ''; // เคลียร์เนื้อหาเดิม
+
+    // สร้าง checkbox สำหรับเมนูที่ได้รับอนุญาต
+    allowedMenus.forEach(menu => {
+        const menuDiv = document.createElement('div');
+        menuDiv.classList.add('mt-2');
+
+        const label = document.createElement('label');
+        label.classList.add('inline-flex', 'items-center');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.classList.add('permission-checkbox');
+        checkbox.value = menu;
+
+        const span = document.createElement('span');
+        span.classList.add('ml-2');
+        span.textContent = menu; // หรือคุณอาจเปลี่ยนชื่อให้เป็นมิตรกับผู้ใช้ได้
+
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        menuDiv.appendChild(label);
+        permissionsContainer.appendChild(menuDiv);
+    });
+}
+
+        // Save updated permissions
+        function savePermissions() {
+            const selectedRole = document.getElementById('role-select').value;
+            const selectedPermissions = Array.from(document.querySelectorAll('input.permission-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (!currentCompanyNo) return;
+
+            db.collection('companies').doc(currentCompanyNo).update({
+                [`permissions.${selectedRole}`]: selectedPermissions
+            }).then(() => {
+                console.log('Permissions updated successfully.');
+                alert('Permissions updated successfully.');
+            }).catch(error => {
+                console.error('Error updating permissions:', error);
+                alert('Failed to update permissions.');
+            });
+        }
+
+        // Toggle UI based on auth state
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Get user's company and role
+                db.collectionGroup('users').where('email', '==', user.email).get().then(snapshot => {
+                    if (!snapshot.empty) {
+                        snapshot.forEach(doc => {
+                            const userData = doc.data();
+                            currentCompanyNo = userData.Company_No;
+                            if (userData.role === 'admin') {
+                                // Show manage access UI
+                                document.getElementById('manage-access-container').style.display = 'block';
+                            } else {
+                                alert('You do not have permission to access this page.');
+                                window.location.href = 'login.html'; // Redirect to login page
+                            }
+                        });
+                    }
+                });
+            } else {
+                window.location.href = 'login.html'; // Redirect to login page
+            }
+        });
+    </script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <!-- Manage Access Container -->
+    <div id="manage-access-container" class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg" style="display: none;">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Manage Access</h2>
+
+        <!-- Select Role -->
+        <div class="mb-4">
+            <label for="role-select" class="block text-sm font-medium text-gray-700">Select Role</label>
+            <select id="role-select" class="block w-full mt-1 rounded-lg border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" onchange="loadPermissions(this.value)">
+                <option> </option>
+                <option value="user">User</option>
+                <option value="super">Super</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
+        <!-- Permissions -->
+        <div class="mb-4">
+            <h3 class="text-lg font-medium text-gray-700">Permissions</h3>
+            <div class="permissions-container">
+                <!-- ส่วนนี้จะถูกเติมด้วย JavaScript -->
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="text-right">
+            <button onclick="savePermissions()" class="bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-200">Save</button>
+        </div>
+    </div>
+</body>
+</html>
