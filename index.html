@@ -178,11 +178,16 @@
         }
 
         .submenu li a {
-            padding: 10px 20px;
+            padding: 10px 30px; /* Increase left padding to indent submenu items */
             font-size: 14px;
             background-color: #f9f9f9; /* Submenu background */
             color: #6c757d; /* Submenu text color */
         }
+        
+        .submenu .submenu li a {
+            padding-left: 50px; /* Further indent nested submenu items */
+        }
+
 
         .submenu li a:hover {
             background-color: #e0e4e8;
