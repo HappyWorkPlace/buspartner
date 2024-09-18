@@ -3,254 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Collapsible Sidebar</title>
+    <title>Improved Modern Collapsible Sidebar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<!--     <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file --> -->
-    <style>
-        /* General Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            background: #f0f2f5;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+ <style>
+    /* General Styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        background: #f0f2f5;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
 
-        /* Sidebar Styles */
+    /* Sidebar Styles */
+    .sidebar {
+        width: 260px;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        transition: height 0.5s ease-out, width 0.3s ease;
+        position: fixed;
+        left: 0;
+        height: auto; /* เริ่มต้นด้วยความสูงเต็มหน้าจอ */
+        min-height: 100vh; /* ให้มีความสูงขั้นต่ำเท่ากับความสูงของหน้าจอ */
+        z-index: 1000;
+    }
+
+    .sidebar.collapsed {
+        width: 70px;
+    }
+
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        background-color: #34495e;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .logo i {
+        font-size: 24px;
+        color: #3498db;
+    }
+
+    .logo-text {
+        font-size: 20px;
+        font-weight: bold;
+        color: #ecf0f1;
+        margin-left: 10px;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed .logo-text {
+        opacity: 0;
+        width: 0;
+    }
+
+    .sidebar-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #ecf0f1;
+        font-size: 20px;
+        outline: none;
+    }
+
+    /* Sidebar Menu */
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+        padding-bottom: 50px; /* Add extra space at the bottom */
+    }
+
+    .menu-item {
+        position: relative;
+        margin-bottom: 5px;
+        transition: margin-bottom 0.3s ease;
+    }
+
+    .menu-item.open {
+        margin-bottom: 10px;
+    }
+
+    .menu-item a {
+        padding: 12px 20px;
+        text-decoration: none;
+        color: #ecf0f1;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .menu-item a:hover, .menu-item.active > a {
+        background-color: #3498db;
+        border-radius: 5px;
+        margin: 0 10px;
+    }
+
+    .menu-text {
+        margin-left: 15px;
+        white-space: nowrap;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed .menu-text {
+        opacity: 0;
+        width: 0;
+    }
+
+    /* Submenu Styles */
+    .submenu {
+        list-style: none;
+        padding-left: 20px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-out;
+    }
+
+    .menu-item.open > .submenu {
+        max-height: 1000px; /* หรือค่าที่มากพอสำหรับเนื้อหาของคุณ */
+        transition: max-height 0.5s ease-in;
+    }
+
+    .submenu li a {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .submenu .submenu li a {
+        padding-left: 40px;
+    }
+
+    /* Dropdown indicators */
+    .menu-item > a::after {
+        content: '\f105';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-left: auto;
+        transition: transform 0.3s;
+    }
+
+    .menu-item.open > a::after {
+        transform: rotate(90deg);
+    }
+
+    .sidebar.collapsed .menu-item > a::after {
+        display: none;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+        margin-left: 260px;
+        padding: 20px;
+        transition: margin-left 0.3s ease;
+        width: calc(100% - 260px);
+    }
+
+    .sidebar.collapsed + .main-content {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
         .sidebar {
-            width: 250px; /* Default width */
-            background-color: #ffffff;
-            color: #4a4a4a;
-            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            transition: width 0.3s ease; /* Smooth transition for width */
-            position: fixed;
-            left: 0; /* Ensure the sidebar stays on the left */
-            height: 100vh; /* Full height */
-            z-index: 1000; /* Ensure sidebar is above other elements */
+            width: 100%;
+            transform: translateX(-100%);
         }
 
         .sidebar.collapsed {
-            width: 80px; /* Width when collapsed */
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            background-color: #f5f6fa;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            transition: opacity 0.3s ease; /* Smooth transition for logo visibility */
-        }
-
-        .logo i {
-            font-size: 20px;
-            margin-right: 10px;
-            color: #3498db;
-        }
-
-        .logo-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #4a4a4a;
-            transition: opacity 0.3s ease; /* Smooth transition for text visibility */
-        }
-
-        .sidebar.collapsed .logo-text {
-            opacity: 0; /* Hide logo text when collapsed */
-        }
-
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #4a4a4a;
-            font-size: 20px;
-            outline: none;
-        }
-
-        /* Search Bar */
-        .sidebar-search {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            background-color: #f5f6fa;
-            border-bottom: 1px solid #e0e4e8;
-        }
-
-        .sidebar-search input {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            margin-right: 10px;
-            outline: none;
-        }
-
-        /* Sidebar Menu */
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 20px 0;
-        }
-
-        .menu-item {
-            position: relative;
-        }
-
-        .menu-item a {
-            padding: 15px 20px;
-            text-decoration: none;
-            color: #4a4a4a;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .menu-item a:hover {
-            background-color: #e0e4e8;
-            border-radius: 8px;
-            color: #3498db; /* Highlight color */
-        }
-
-        .menu-text {
-            margin-left: 15px;
-            white-space: nowrap; /* Prevent text wrapping */
-            transition: opacity 0.3s ease; /* Smooth transition for text visibility */
-        }
-
-        .sidebar.collapsed .menu-text {
-            opacity: 0; /* Hide menu text when collapsed */
-        }
-
-        /* Tooltip for Collapsed Sidebar */
-        .sidebar.collapsed .menu-item a {
-            position: relative;
-        }
-
-        .sidebar.collapsed .menu-item a:hover::after {
-            content: attr(title);
-            position: absolute;
-            left: 100%;
-            margin-left: 10px;
-            background-color: #3498db;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 5px;
-            white-space: nowrap;
-            z-index: 1000;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .sidebar.collapsed .menu-item a:hover::after {
-            opacity: 1;
             transform: translateX(0);
-        }
-
-        /* Active State */
-        .menu-item.active > a {
-            background-color: #3498db;
-            color: #fff;
-        }
-
-        /* Submenu Styles */
-        .submenu {
-            list-style: none;
-            padding-left: 0; /* Remove indentation */
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .menu-item.open .submenu {
-            max-height: 500px; /* Adjust based on submenu content */
-        }
-
-        .submenu li a {
-            padding: 10px 30px; /* Increase left padding to indent submenu items */
-            font-size: 14px;
-            background-color: #f9f9f9; /* Submenu background */
-            color: #6c757d; /* Submenu text color */
-        }
-        
-        .submenu .submenu li a {
-            padding-left: 50px; /* Further indent nested submenu items */
-        }
-
-
-        .submenu li a:hover {
-            background-color: #e0e4e8;
-            color: #3498db;
-        }
-
-        /* Hide submenus when the sidebar is collapsed */
-        .sidebar.collapsed .submenu {
-            display: none;
-        }
-
-        /* Sidebar Footer */
-        .sidebar-footer {
-            position: absolute;
-            bottom: 0;
             width: 100%;
-            padding: 20px;
-            text-align: center;
-            background-color: #f5f6fa;
-            box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Main Content Styles */
         .main-content {
-            margin-left: 250px; /* Align to the right of the sidebar */
-            padding: 20px;
-            transition: margin-left 0.3s ease; /* Smooth transition for margin */
-            width: calc(100% - 250px); /* Full width minus the sidebar */
+            margin-left: 0;
+            width: 100%;
         }
 
         .sidebar.collapsed + .main-content {
-            margin-left: 80px; /* Adjust main content position when sidebar collapses */
-            width: calc(100% - 80px); /* Adjust width of main content */
+            margin-left: 0;
+            width: 100%;
         }
-
-        /* Icons */
-        .sidebar i, .sidebar-toggle i {
-            color: #4a4a4a;
-        }
-
-        /* Ensure full height scrolling */
-        html, body {
-            height: 100%;
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <i class="fas fa-project-diagram"></i>
+                <i class="fas fa-bus"></i>
                 <span class="logo-text">BUS PARTNER</span>
             </div>
             <button class="sidebar-toggle" id="sidebar-toggle">
                 <i class="fas fa-bars"></i>
             </button>
-        </div>
-
-        <!-- Search Bar -->
-        <div class="sidebar-search">
-            <input type="text" placeholder="Search..." id="sidebar-search">
-            <i class="fas fa-search"></i>
         </div>
 
         <!-- Sidebar Menu -->
@@ -259,30 +216,21 @@
                 <a href="#"><i class="fas fa-home"></i><span class="menu-text">Home</span></a>
             </li>
             <li class="menu-item">
-                <a href="#"><i class="fas fa-envelope"></i><span class="menu-text">Contact</span></a>
+                <a href="#"><i class="fas fa-laptop"></i><span class="menu-text">Program</span></a>
+                <ul class="submenu">
+                    <li><a href="#"><i class="fas fa-user-check"></i><span class="menu-text">Attendance Record</span></a></li>
+                    <li><a href="#"><i class="fas fa-camera"></i><span class="menu-text">Camera Record</span></a></li>
+                    <li><a href="#"><i class="far fa-calendar"></i><span class="menu-text">Bus Arrange Shift</span></a></li>
+                    <li><a href="#"><i class="fas fa-wrench"></i><span class="menu-text">Maintenance Record</span></a></li>
+                    <li class="menu-item">
+                        <a href="#"><i class="fas fa-exclamation-circle"></i><span class="menu-text">Document Expire</span></a>
+                        <ul class="submenu">
+                            <li><a href="#"><i class="far fa-id-card"></i><span class="menu-text">Driver License Expire</span></a></li>
+                            <li><a href="#"><i class="fas fa-clipboard-list"></i><span class="menu-text">Bus Document Expire</span></a></li>
+                        </ul>
+                    </li>
+                </ul>
             </li>
-            <li class="menu-item">
-                <a href="#"><i class="fas fa-info-circle"></i><span class="menu-text">About</span></a>
-            </li>
-<li class="menu-item">
-    <a href="#"><i class="fas fa-laptop"></i><span class="menu-text">Program</span></a>
-    <ul class="submenu">
-        <li><a href="#"><i class="fas fa-user-check"></i><span class="menu-text">Attendance Record</span></a></li>
-        <li><a href="#"><i class="fas fa-camera"></i><span class="menu-text">Camera Record</span></a></li>
-        <li><a href="#"><i class="far fa-calendar"></i><span class="menu-text">Bus Arrange Shift</span></a></li>
-        <li><a href="#"><i class="fas fa-wrench"></i><span class="menu-text">Maintenance Record</span></a></li>
-        <!-- Document Expire with Nested Submenu -->
-        <li class="menu-item">
-            <a href="#"><i class="fas fa-exclamation-circle"></i><span class="menu-text">Document Expire</span></a>
-            <ul class="submenu">
-                <li><a href="#"><i class="far fa-id-card"></i><span class="menu-text">Driver License Expire</span></a></li>
-                <li><a href="#"><i class="fas fa-clipboard-list"></i><span class="menu-text">Bus Document Expire</span></a></li>
-            </ul>
-        </li>
-    </ul>
-</li>
-
-
             <li class="menu-item">
                 <a href="#"><i class="fas fa-cog"></i><span class="menu-text">Settings</span></a>
                 <ul class="submenu">
@@ -320,77 +268,89 @@
 
     <!-- Main Content -->
     <div class="main-content" id="main-content">
-        <h1>Welcome to Projeck</h1>
+        <h1>Welcome to Bus Partner</h1>
         <p>This is the homepage of your dashboard.</p>
     </div>
+
     <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarMenu = document.querySelector('.sidebar-menu');
 
-    sidebarToggle.addEventListener('click', function() {
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('collapsed');
+    function updateSidebarHeight() {
+        const sidebarHeight = sidebarMenu.scrollHeight;
+        sidebar.style.height = `${sidebarHeight}px`;
+    }
 
-        // Toggle tooltips for collapsed sidebar
-        document.querySelectorAll('.menu-item > a').forEach(item => {
-            if (sidebar.classList.contains('collapsed')) {
-                item.setAttribute('title', item.querySelector('.menu-text').textContent);
-            } else {
-                item.removeAttribute('title');
-            }
-        });
-
-        // Close all submenus when collapsing the sidebar
-        if (sidebar.classList.contains('collapsed')) {
-            document.querySelectorAll('.submenu').forEach(submenu => {
-                submenu.style.maxHeight = null;
-                submenu.parentElement.classList.remove('open');
+    function toggleSubmenu(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const menuItem = event.currentTarget.parentElement;
+        const submenu = menuItem.querySelector(':scope > .submenu');
+        
+        if (submenu) {
+            const isOpen = menuItem.classList.toggle('open');
+            
+            // ปิดเมนูย่อยอื่นๆ ในระดับเดียวกัน
+            const siblings = menuItem.parentElement.children;
+            Array.from(siblings).forEach(sibling => {
+                if (sibling !== menuItem && sibling.classList.contains('open')) {
+                    sibling.classList.remove('open');
+                    const siblingSubmenu = sibling.querySelector(':scope > .submenu');
+                    if (siblingSubmenu) {
+                        siblingSubmenu.style.maxHeight = null;
+                        siblingSubmenu.style.opacity = '0';
+                    }
+                }
             });
-        }
-    });
 
-    // Toggle submenus
-    const menuItems = document.querySelectorAll('.menu-item > a');
-    menuItems.forEach(item => {
-        item.addEventListener('click', function(event) {
-            const parent = this.parentElement;
-            const submenu = parent.querySelector('.submenu');
-
-            // Check if the clicked item has a submenu
-            if (submenu) {
-                event.preventDefault();
-                parent.classList.toggle('open');
-
-                // Toggle max-height for smooth animation
-                if (parent.classList.contains('open')) {
-                    submenu.style.maxHeight = submenu.scrollHeight + "px";
-                } else {
-                    submenu.style.maxHeight = null;
-                }
-                
-                // Close other submenus within the same level
-                closeOtherSubmenus(parent);
+            // ปรับความสูงและความทึบของเมนูย่อยที่เปิด/ปิด
+            if (isOpen) {
+                submenu.style.maxHeight = submenu.scrollHeight + "px";
+                submenu.style.opacity = '1';
+            } else {
+                submenu.style.maxHeight = null;
+                submenu.style.opacity = '0';
             }
-        });
-    });
 
-    // Function to close other open submenus on the same level
-    function closeOtherSubmenus(currentItem) {
-        const siblings = currentItem.parentElement.children;
-        for (let i = 0; i < siblings.length; i++) {
-            if (siblings[i] !== currentItem && siblings[i].classList.contains('open')) {
-                siblings[i].classList.remove('open');
-                const siblingSubmenu = siblings[i].querySelector('.submenu');
-                if (siblingSubmenu) {
-                    siblingSubmenu.style.maxHeight = null;
-                }
-            }
+            // อัพเดทความสูงของ sidebar หลังจาก transition เสร็จสิ้น
+            setTimeout(updateSidebarHeight, 500); // 500ms ตรงกับ transition ใน CSS
         }
     }
-});
 
+    // เพิ่ม event listener สำหรับทุกรายการเมนู
+    document.querySelectorAll('.sidebar-menu .menu-item > a').forEach(item => {
+        item.addEventListener('click', toggleSubmenu);
+    });
+
+    // Toggle sidebar
+    sidebarToggle.addEventListener('click', function(event) {
+        event.stopPropagation();
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('collapsed');
+        updateSidebarHeight();
+    });
+
+    // Close sidebar on mobile when clicking outside
+    document.addEventListener('click', function(event) {
+        const isMobile = window.innerWidth <= 768;
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isSidebarToggleClick = sidebarToggle.contains(event.target);
+
+        if (isMobile && !isClickInsideSidebar && !isSidebarToggleClick && !sidebar.classList.contains('collapsed')) {
+            sidebar.classList.add('collapsed');
+        }
+    });
+
+    // Initial update of sidebar height
+    updateSidebarHeight();
+
+    // Update sidebar height on window resize
+    window.addEventListener('resize', updateSidebarHeight);
+});
     </script>
 </body>
 </html>
